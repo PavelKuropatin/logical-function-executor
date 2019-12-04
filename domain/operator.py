@@ -1,12 +1,11 @@
-from util.constants import DC, CONJUNCTION, DISJUNCTION, IMPLICATION, EQUIVALENCE, XOR, NOT
+from util import constants
 
 
 class LogicalException(BaseException):
     pass
 
 
-class BaseOperator:
-    mark = None
+class Operator:
 
     def __init__(self, *args):
         self._args = args
@@ -16,18 +15,17 @@ class BaseOperator:
 
     @staticmethod
     def _get_arg_value(arg):
-        if isinstance(arg, BaseOperator):
+        if isinstance(arg, Operator):
             return arg.compute()
         elif callable(arg):
             return arg()
-        elif arg in (0, 1, DC):
+        elif arg in (0, 1, constants.DC):
             return arg
         else:
             raise LogicalException(f"Unknown arg: {arg}")
 
 
-class Conjunction(BaseOperator):
-    mark = CONJUNCTION
+class Conjunction(Operator):
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -40,15 +38,14 @@ class Conjunction(BaseOperator):
         arg2 = self._get_arg_value(self._args[1])
         if 0 in (arg1, arg2):
             value = 0
-        elif DC in (arg1, arg2):
-            value = DC
+        elif constants.DC in (arg1, arg2):
+            value = constants.DC
         else:
             value = 1
         return value
 
 
-class Disjunction(BaseOperator):
-    mark = DISJUNCTION
+class Disjunction(Operator):
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -61,15 +58,14 @@ class Disjunction(BaseOperator):
         arg2 = self._get_arg_value(self._args[1])
         if 1 in (arg1, arg2):
             value = 1
-        elif DC in (arg1, arg2):
-            value = DC
+        elif constants.DC in (arg1, arg2):
+            value = constants.DC
         else:
             value = 0
         return value
 
 
-class Xor(BaseOperator):
-    mark = XOR
+class Xor(Operator):
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -80,17 +76,16 @@ class Xor(BaseOperator):
 
         arg1 = self._get_arg_value(self._args[0])
         arg2 = self._get_arg_value(self._args[1])
-        if arg1 == arg2 and DC not in (arg1, arg2):
+        if arg1 == arg2 and constants.DC not in (arg1, arg2):
             value = 0
-        elif arg1 != arg2 and DC not in (arg1, arg2):
+        elif arg1 != arg2 and constants.DC not in (arg1, arg2):
             value = 1
         else:
-            value = DC
+            value = constants.DC
         return value
 
 
-class Implication(BaseOperator):
-    mark = IMPLICATION
+class Implication(Operator):
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -108,12 +103,11 @@ class Implication(BaseOperator):
         elif (arg1, arg2) == (1, 0):
             value = 0
         else:
-            value = DC
+            value = constants.DC
         return value
 
 
-class Equivalence(BaseOperator):
-    mark = EQUIVALENCE
+class Equivalence(Operator):
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -124,17 +118,16 @@ class Equivalence(BaseOperator):
 
         arg1 = self._get_arg_value(self._args[0])
         arg2 = self._get_arg_value(self._args[1])
-        if arg1 == arg2 and DC not in (arg1, arg2):
+        if arg1 == arg2 and constants.DC not in (arg1, arg2):
             value = 1
-        elif arg1 != arg2 and DC not in (arg1, arg2):
+        elif arg1 != arg2 and constants.DC not in (arg1, arg2):
             value = 0
         else:
-            value = DC
+            value = constants.DC
         return value
 
 
-class Not(BaseOperator):
-    mark = NOT
+class Not(Operator):
 
     def __init__(self, *args):
         super().__init__(*args)
