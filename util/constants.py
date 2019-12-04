@@ -1,7 +1,4 @@
-import re
-
 DC = None
-SUPPORTED_OPERATORS = ["||", "&", "~"]
+ALL_OPERATORS = ["||", "&", "~"]
 U_OPERATORS = ["~"]
 BI_OPERATORS = ["||", "&"]
-RE_BRACKETS = re.compile("[()]")

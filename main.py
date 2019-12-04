@@ -21,15 +21,21 @@ if __name__ == '__main__':
         # ,
         # "~(x1&(x2||x3&x4))"
         # ,
-        # "((x1 & ( (x2& x3) || (~x4 || (x5&x6) ) )))"
+        # "x1 & ( (x2& x3) || (~x4 || (x5&x6) ) )"
         # ,
-        "x0||x1&((x2& x3)||(~x4||(x5&x6)))||x7"
-        ,
-        "x3 || x4  & ((x 1& x1) || (~x2 || (x1&x2) ) )"
-        ,
-        "((x3 & ( (x 1& x1) || (~x2 || (x1&x2) ) )))"  # todo ignore multiple brackets
+        # "x0||x1&((x2& x3)||(~x4||(x5&x6)))||x7"
+        # ,
+        # "x3 || x4  & ((x 1& x1) || (~x2 || (x1&x2) ) )"
+        # ,
+        # "((x3 & ( (x 1& x1) || (~~x2 || (x1&x2) ) )))"  # todo ignore multiple brackets
+        # ,
+        "~(x1||~~~~~x2)||~x3"
+        # ,
+        # "~(x1)||~x3"
+
     ]
     expression_parser = ExpressionParser()
+
     for e in expressions:
         print("input :", e)
         stack = expression_parser.parse(e)
