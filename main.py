@@ -1,18 +1,8 @@
 from util.constants import DC
 from util.expression_parser import ExpressionParser
+from util.generate_utils import generate_variables
 
 if __name__ == '__main__':
-    variables = [
-        {"x1": 0, "x2": 0},
-        {"x1": 1, "x2": 0},
-        {"x1": 0, "x2": 1},
-        {"x1": 1, "x2": 1},
-        {"x1": 0, "x2": DC},
-        {"x1": 1, "x2": DC},
-        {"x1": DC, "x2": 1},
-        {"x1": DC, "x2": 0},
-        {"x1": DC, "x2": DC},
-    ]
 
     expressions = [
         # "(x1&&x2)||x2"
@@ -40,16 +30,19 @@ if __name__ == '__main__':
         # "((x3 && ( (x1 && x1) || (!!!(!x2) || (x1&&x2) ) )))"
         # ,
         # "(( ((x3)) && ( (x1 && x1) || (!!!(x2) || (x1&&x2) ) )))"
-        # ,
-        # " x3 && ( (x1 && x1) || (!!!(x2) || ((((((x1))&&((x2)))))) ) )"
+        ,
+        " x3 && ( (x1 && x1) || (!!!(x2) || ((((((x1))&&((x2)))))) ) )"
     ]
     expression_parser = ExpressionParser()
 
     for e in expressions:
-        print("input  :", e)
+        print("input        :", e)
         expression_parser.parse(e)
-        print("result :", expression_parser.stack)
-        print("vars   :", expression_parser.variables)
-        for vars in variables:
-            print("value :", expression_parser.compute(vars), vars)
+        var_names = expression_parser.variables
+        data = generate_variables(var_names)
+        print("result stack :", expression_parser.stack)
+        print("vars         :", expression_parser.variables)
+        for variables in data:
+            value = expression_parser.compute(variables)
+            print("value        :", "DC" if value is DC else f"{value} ", variables)
         print("-" * 70)
