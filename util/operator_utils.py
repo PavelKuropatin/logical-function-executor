@@ -43,7 +43,10 @@ def is_unary(stack: list):
 
 def find_brackets_i(expression):
     brackets = []
-    res = RE_BRACKETS.finditer(expression)
+    try:
+        res = RE_BRACKETS.finditer(expression)
+    except TypeError:
+        raise TypeError(expression)
     for m in res:
         brackets.append((m.start(), expression[m.start()]))
     if not brackets:
@@ -79,7 +82,7 @@ def split_by_operator(expression: str) -> Union[List[str], str]:
         if isinstance(out, str) or len(out) == 2:
             stack[i] = out
         else:
-            stack[i] = __make_cascade_unary(out)
+            stack[i] = make_cascade_unary(out)
 
     return stack if len(stack) != 1 else stack[0]
 
@@ -105,7 +108,7 @@ def __split_by_operators(expression, operators=None):
     return stack
 
 
-def __make_cascade_unary(stack: list):
+def make_cascade_unary(stack: list):
     if len(stack) == 2:
         return stack
-    return [stack[0], __make_cascade_unary(stack[1:])]
+    return [stack[0], make_cascade_unary(stack[1:])]

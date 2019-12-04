@@ -1,7 +1,9 @@
 import re
+from typing import Union
 
-from util.constants import ALL_OPERATORS, BI_OPERATORS
-from util.operator_utils import find_brackets_i, split_by_operator, find_operator, is_variable, is_unary
+from util.constants import BI_OPERATORS, ALL_OPERATORS
+from util.operator_utils import find_brackets_i, split_by_operator, find_operator, is_variable, is_unary, \
+    make_cascade_unary
 
 
 class ParseException(Exception):
@@ -12,16 +14,30 @@ class ExpressionParser:
 
     def __init__(self, ):
         self.__operator = None
-        self.__vars: dict = dict()
-        self.__stack: list = None
+        self.__variables: dict = dict()
+        self.__stack: list = []
+
+    @property
+    def variables(self):
+        return self.__variables
+
+    @property
+    def stack(self):
+        return self.__stack
 
     def parse(self, expression):
         expression = re.sub(r"\s*", "", expression)
         stack = self.__parse(expression)
-        return stack
+        print("parsed :", stack)
+        stack = self.__refactor_stack(stack)
+        print("refactored :", stack)
+
+        self.__variables = self.__find_variable_names(stack)
+        self.__stack = stack
 
     def __parse(self, expr: str) -> list:
         stack = []
+
         while expr:
             start_i, end_i = find_brackets_i(expr)
 
@@ -55,11 +71,21 @@ class ExpressionParser:
                             else:
                                 stack.append(expr_before_brackets)
                         stack.append(op)
-                        stack.append(brackets_expr)
+                        stack.append(self.__parse(brackets_expr))
                     else:
-                        stack.append([op, brackets_expr])
+                        out = list(expr[:start_i])
+                        if is_variable(brackets_expr):
+                            out += [brackets_expr]
+                        else:
+                            brackets_expr = self.__parse(brackets_expr)
+                            if is_unary(brackets_expr):
+                                out.extend(brackets_expr)
+                            else:
+                                out.append(brackets_expr)
+                        out = make_cascade_unary(out)
+                        stack.append(out)
                 else:
-                    stack.append(brackets_expr)
+                    stack.append(self.__parse(brackets_expr))
 
                 # extract expression standing after brackets
                 expr = expr[end_i + 1:]
@@ -72,15 +98,39 @@ class ExpressionParser:
                     expr = expr[op_length:]
                     if not expr:
                         raise ParseException(f"{expr} like (...)<operator><end>")
+                # if expr:
+                #     print(expr)
+                #     stack.extend(self.__parse(expr))
 
         new_stack = []
-        for i, part in enumerate(stack):
-            if is_unary(part):
-                part[1] = self.__parse(part[1])
-                new_stack.append(part)
-            elif part in ALL_OPERATORS or is_variable(part):
-                new_stack.append(part)
-            else:
-                new_stack.append(self.__parse(part))
+        new_stack = stack
+        # for i, part in enumerate(stack):
+        #     if is_unary(part):
+        #         if isinstance(part[1], str):
+        #             part[1] = self.__parse(part[1])
+        #         new_stack.append(part)
+        #     elif part in ALL_OPERATORS or is_variable(part):
+        #         new_stack.append(part)
+        #     else:
+        #         new_stack.append(self.__parse(part))
 
         return new_stack
+
+    def __refactor_stack(self, stack: Union[list, str]):
+        if isinstance(stack, str):
+            return stack
+        if len(stack) == 1:
+            return self.__refactor_stack(stack[0])
+        return [
+            self.__refactor_stack(part)
+            for part in stack
+        ]
+
+    def __find_variable_names(self, stack):
+        variables = set()
+        for part in stack:
+            if isinstance(part, list):
+                variables.update(self.__find_variable_names(part))
+            elif part not in ALL_OPERATORS:
+                variables.add(part)
+        return variables
