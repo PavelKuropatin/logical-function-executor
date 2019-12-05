@@ -1,7 +1,5 @@
 from domain.operator import *
 
-DC = None
-
 CONJUNCTION = "&&"  # and
 DISJUNCTION = "||"  # or
 XOR = "~"

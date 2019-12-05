@@ -1,15 +1,30 @@
 from itertools import combinations_with_replacement
 
-from util.constants import DC
-
-__VALUES = (0, 1, DC)
+from domain.value import VALUES
 
 
 def generate_variables(names):
+    data_set = __generate_data(VALUES, len(names))
     return [
         {
-            names[i]: values[i]
-            for i in range(len(values))
+            names[i]: data[i]
+            for i in range(len(data))
         }
-        for values in combinations_with_replacement(__VALUES, len(names))
+        for data in data_set
     ]
+    for val in combinations_with_replacement(VALUES, len(names)):
+        print(val)
+
+
+def __generate_data(values, size) -> list:
+    if not size:
+        return []
+    data = []
+    for value in values:
+        ends = __generate_data(values, size - 1)
+        if ends:
+            for end in ends:
+                data.append([value] + end)
+        else:
+            data.append([value])
+    return data

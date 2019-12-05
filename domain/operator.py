@@ -1,4 +1,4 @@
-from util import constants
+from domain.value import ZERO, DC, ONE, VALUES
 
 
 class LogicalException(BaseException):
@@ -19,7 +19,7 @@ class Operator:
             return arg.compute()
         elif callable(arg):
             return arg()
-        elif arg in (0, 1, constants.DC):
+        elif arg in VALUES:
             return arg
         else:
             raise LogicalException(f"Unknown arg: {arg}")
@@ -36,12 +36,12 @@ class Conjunction(Operator):
 
         arg1 = self._get_arg_value(self._args[0])
         arg2 = self._get_arg_value(self._args[1])
-        if 0 in (arg1, arg2):
-            value = 0
-        elif constants.DC in (arg1, arg2):
-            value = constants.DC
+        if ZERO in (arg1, arg2):
+            value = ZERO
+        elif DC in (arg1, arg2):
+            value = DC
         else:
-            value = 1
+            value = ONE
         return value
 
 
@@ -56,12 +56,12 @@ class Disjunction(Operator):
 
         arg1 = self._get_arg_value(self._args[0])
         arg2 = self._get_arg_value(self._args[1])
-        if 1 in (arg1, arg2):
-            value = 1
-        elif constants.DC in (arg1, arg2):
-            value = constants.DC
+        if ONE in (arg1, arg2):
+            value = ONE
+        elif DC in (arg1, arg2):
+            value = DC
         else:
-            value = 0
+            value = ZERO
         return value
 
 
@@ -76,12 +76,12 @@ class Xor(Operator):
 
         arg1 = self._get_arg_value(self._args[0])
         arg2 = self._get_arg_value(self._args[1])
-        if arg1 == arg2 and constants.DC not in (arg1, arg2):
-            value = 0
-        elif arg1 != arg2 and constants.DC not in (arg1, arg2):
-            value = 1
+        if arg1 == arg2 and DC not in (arg1, arg2):
+            value = ZERO
+        elif arg1 != arg2 and DC not in (arg1, arg2):
+            value = ONE
         else:
-            value = constants.DC
+            value = DC
         return value
 
 
@@ -96,14 +96,14 @@ class Implication(Operator):
 
         arg1 = self._get_arg_value(self._args[0])
         arg2 = self._get_arg_value(self._args[1])
-        if arg1 == 0:
-            value = 1
-        elif (arg1, arg2) == (1, 1):
-            value = 1
-        elif (arg1, arg2) == (1, 0):
-            value = 0
+        if arg1 == ZERO:
+            value = ONE
+        elif (arg1, arg2) == (ONE, ONE):
+            value = ONE
+        elif (arg1, arg2) == (ONE, ZERO):
+            value = ZERO
         else:
-            value = constants.DC
+            value = DC
         return value
 
 
@@ -118,12 +118,12 @@ class Equivalence(Operator):
 
         arg1 = self._get_arg_value(self._args[0])
         arg2 = self._get_arg_value(self._args[1])
-        if arg1 == arg2 and constants.DC not in (arg1, arg2):
-            value = 1
-        elif arg1 != arg2 and constants.DC not in (arg1, arg2):
-            value = 0
+        if arg1 == arg2 and DC not in (arg1, arg2):
+            value = ONE
+        elif arg1 != arg2 and DC not in (arg1, arg2):
+            value = ZERO
         else:
-            value = constants.DC
+            value = DC
         return value
 
 
@@ -133,14 +133,14 @@ class Not(Operator):
         super().__init__(*args)
 
     def compute(self):
-        # if len(self._args) != 1:
+        # if len(self._args) != ONE:
         #     raise LogicalException("args count is not 1")
 
         arg = self._get_arg_value(self._args[0])
-        if arg == 1:
-            value = 0
-        elif arg == 0:
-            value = 1
+        if arg == ONE:
+            value = ZERO
+        elif arg == ZERO:
+            value = ONE
         else:
-            value = None
+            value = DC
         return value

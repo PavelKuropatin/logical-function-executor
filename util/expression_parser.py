@@ -26,9 +26,11 @@ class ExpressionParser:
     def stack(self):
         return self.__stack
 
-    def parse(self, expression):
+    def parse(self, expression) -> None:
+        self.__variables.clear()
         expression = re.sub(r"\s*", "", expression)
         stack = self.__parse(expression)
+        print(stack)
         stack = self.__refactor_stack(stack)
 
         self.__stack = stack
@@ -102,19 +104,7 @@ class ExpressionParser:
                 #     print(expr)
                 #     stack.extend(self.__parse(expr))
 
-        new_stack = []
-        new_stack = stack
-        # for i, part in enumerate(stack):
-        #     if is_unary(part):
-        #         if isinstance(part[1], str):
-        #             part[1] = self.__parse(part[1])
-        #         new_stack.append(part)
-        #     elif part in ALL_OPERATORS or is_variable(part):
-        #         new_stack.append(part)
-        #     else:
-        #         new_stack.append(self.__parse(part))
-
-        return new_stack
+        return stack
 
     def __refactor_stack(self, stack: Union[list, str]):
         if isinstance(stack, str):
@@ -142,7 +132,14 @@ class ExpressionParser:
         if isinstance(stack, str):
             return lambda: self.__variables[stack]
 
+        if len(stack) == 2:
+            # build unary operator
+            operator_class = MAPPING[stack[0]]
+            arg1 = self.__build_operator(stack[1])
+            return operator_class(arg1)
+
         if len(stack) == 3:
+            # build binary operator
             operator_class = MAPPING[stack[1]]
             arg1 = self.__build_operator(stack[0])
             arg2 = self.__build_operator(stack[2])
