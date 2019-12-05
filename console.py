@@ -1,6 +1,5 @@
 import sys
 
-from domain.value import as_str
 from util.expression_parser import ExpressionParser
 from util.generate_utils import generate_variables
 
@@ -39,5 +38,5 @@ if __name__ == '__main__':
         print("result stack :", expression_parser.stack)
         print("vars         :", expression_parser.variables)
         for variables in data:
-            print("value        :", as_str(expression_parser.compute(variables)), variables)
+            print("value        :", str(expression_parser.compute(variables)), variables)
         print("-" * 70)

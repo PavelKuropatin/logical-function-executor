@@ -5,7 +5,6 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget
 
-from domain.value import as_str
 from util.expression_parser import ExpressionParser
 from util.generate_utils import generate_variables
 
@@ -27,16 +26,6 @@ class LogicalFunctionParser(QMainWindow):
     def __init_ui(self):
         self.expression_edit.setText(self.__default_expression)
 
-    def render_data_table(self):
-        if not self.__cubes:
-            return
-
-        self.__init_table_headers()
-
-        for index, item in enumerate(self.__cubes):
-            for j, value in enumerate(item.values()):
-                LogicalFunctionParser.__set_table_item(self.data_table, index, j, str(value))
-
     @staticmethod
     def __set_table_item(table, i, j, value):
         item = QTableWidgetItem(value, QTableWidgetItem.Type.real)
@@ -55,7 +44,7 @@ class LogicalFunctionParser(QMainWindow):
     def __render_data_set(self, data_set: List[Dict]):
         data_set = [
             {
-                key: as_str(value)
+                key: value
                 for key, value in data.items()
             }
             for data in data_set
@@ -72,7 +61,7 @@ class LogicalFunctionParser(QMainWindow):
 
         for i, data in enumerate(data_set):
             for j, key in enumerate(data.keys()):
-                LogicalFunctionParser.__set_table_item(self.result_table, i, j, as_str(data[key]))
+                LogicalFunctionParser.__set_table_item(self.result_table, i, j, str(data[key]))
 
 
 if __name__ == '__main__':
