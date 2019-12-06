@@ -14,6 +14,14 @@ class Operator:
         raise LogicalException("Not implemented")
 
     @staticmethod
+    def priority() -> int:
+        raise LogicalException("Not implemented")
+
+    @staticmethod
+    def lit() -> str:
+        raise LogicalException("Not implemented")
+
+    @staticmethod
     def _get_arg_value(arg):
         if isinstance(arg, Operator):
             return arg.compute()
@@ -44,6 +52,14 @@ class Conjunction(Operator):
             value = ONE
         return value
 
+    @staticmethod
+    def priority() -> int:
+        return 1
+
+    @staticmethod
+    def lit() -> str:
+        return "&&"
+
 
 class Disjunction(Operator):
 
@@ -64,6 +80,14 @@ class Disjunction(Operator):
             value = ZERO
         return value
 
+    @staticmethod
+    def priority():
+        return 2
+
+    @staticmethod
+    def lit() -> str:
+        return "||"
+
 
 class Xor(Operator):
 
@@ -83,6 +107,14 @@ class Xor(Operator):
         else:
             value = DC
         return value
+
+    @staticmethod
+    def priority():
+        return 2
+
+    @staticmethod
+    def lit() -> str:
+        return "~"
 
 
 class Implication(Operator):
@@ -106,6 +138,14 @@ class Implication(Operator):
             value = DC
         return value
 
+    @staticmethod
+    def priority():
+        return 3
+
+    @staticmethod
+    def lit() -> str:
+        return "-->"
+
 
 class Equivalence(Operator):
 
@@ -126,6 +166,14 @@ class Equivalence(Operator):
             value = DC
         return value
 
+    @staticmethod
+    def priority():
+        return 3
+
+    @staticmethod
+    def lit() -> str:
+        return "<->"
+
 
 class Not(Operator):
 
@@ -144,3 +192,11 @@ class Not(Operator):
         else:
             value = DC
         return value
+
+    @staticmethod
+    def priority():
+        return 0
+
+    @staticmethod
+    def lit() -> str:
+        return "!"

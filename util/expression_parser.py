@@ -2,9 +2,9 @@ import re
 from typing import Union
 
 from domain.operator import Operator
-from util.constants import BI_OPERATORS, ALL_OPERATORS, MAPPING
+from util.constants import BI_OPERATORS, OP_MAPPING
 from util.operator_utils import find_brackets_i, split_by_operator, find_operator, is_variable, is_unary, \
-    make_cascade_unary
+    make_cascade_unary, find_operator_by_priority
 
 
 class ParseException(Exception):
@@ -46,7 +46,7 @@ class ExpressionParser:
                 raise ParseException(f"{expr} has unclosed bracket")
             if start_i is None:
                 out = split_by_operator(expr)
-                if len(out) % 2 == 0:
+                if len(out) % 2 == 0 and len(out) > 2:
                     raise ParseException(f"Invalid expression: {expr}")
                 if stack:
                     stack.append(out)
@@ -107,6 +107,7 @@ class ExpressionParser:
     def __refactor_stack(self, stack: Union[list, str]):
         if isinstance(stack, str):
             return stack
+
         if len(stack) == 1:
             return self.__refactor_stack(stack[0])
         return [
@@ -119,31 +120,37 @@ class ExpressionParser:
         for part in stack:
             if isinstance(part, list):
                 variables.update(self.__find_variable_names(part))
-            elif part not in ALL_OPERATORS:
+            elif isinstance(part, str) and part not in OP_MAPPING:
                 variables.update({part: None})
         return {
             variable: None
             for variable in variables
         }
 
-    def __build_operator(self, stack: Union[list, str]) -> Operator:
+    def __build_operator(self, stack: Union[list, str]) -> Union[Operator, callable]:
+        if isinstance(stack, Operator):
+            return stack
+
         if isinstance(stack, str):
             return lambda: self.__variables[stack]
 
         if len(stack) == 2:
             # build unary operator
-            operator_class = MAPPING[stack[0]]
+            operator_class = OP_MAPPING[stack[0]]
             arg1 = self.__build_operator(stack[1])
             return operator_class(arg1)
 
         if len(stack) == 3:
             # build binary operator
-            operator_class = MAPPING[stack[1]]
+            operator_class = OP_MAPPING[stack[1]]
             arg1 = self.__build_operator(stack[0])
             arg2 = self.__build_operator(stack[2])
             return operator_class(arg1, arg2)
 
-        # todo compute expression like x1&x2||x3 ( operation priority)
+        operator_class, i = find_operator_by_priority(stack)
+        stack[i - 1: i + 2] = [self.__build_operator(stack[i - 1: i + 2])]
+
+        return self.__build_operator(stack)
 
     def compute(self, variables):
         self.__variables.update(variables)

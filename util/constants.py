@@ -1,21 +1,24 @@
 from domain.operator import *
 
-CONJUNCTION = "&&"  # and
-DISJUNCTION = "||"  # or
-XOR = "~"
-IMPLICATION = "-->"
-EQUIVALENCE = "<->"
-NOT = "!"
+U_OPERATORS = [
+    Not.lit()
+]
 
-U_OPERATORS = [NOT]
-BI_OPERATORS = [CONJUNCTION, DISJUNCTION, XOR, IMPLICATION, EQUIVALENCE]
-ALL_OPERATORS = U_OPERATORS + BI_OPERATORS
+BI_OPERATORS = [
+    Conjunction.lit(),
+    Disjunction.lit(),
+    Xor.lit(),
+    Implication.lit(),
+    Equivalence.lit()
+]
 
-MAPPING = {
-    CONJUNCTION: Conjunction,
-    DISJUNCTION: Disjunction,
-    XOR: Xor,
-    IMPLICATION: Implication,
-    EQUIVALENCE: Equivalence,
-    NOT: Not
+OP_MAPPING = {
+    Conjunction.lit(): Conjunction,
+    Disjunction.lit(): Disjunction,
+    Xor.lit(): Xor,
+    Implication.lit(): Implication,
+    Equivalence.lit(): Equivalence,
+    Not.lit(): Not
 }
+
+ALL_OPERATORS = OP_MAPPING.keys()

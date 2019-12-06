@@ -1,7 +1,8 @@
 import re
+from functools import cmp_to_key
 from typing import Union, List
 
-from util.constants import BI_OPERATORS, U_OPERATORS, ALL_OPERATORS
+from util.constants import BI_OPERATORS, U_OPERATORS, ALL_OPERATORS, OP_MAPPING
 
 RE_BRACKETS = re.compile("[()]")
 REG_U_OP = re.compile("|".join([re.escape(_) for _ in U_OPERATORS]))
@@ -31,6 +32,29 @@ def find_operator(expression, from_start=True, operators=ALL_OPERATORS):
         index = 0 if from_start else -1
         return re_operators[index]
     return out
+
+
+def __operator_cmp(item1, item2) -> int:
+    op1 = item1[0]
+    op2 = item2[0]
+    if op1.priority() > op2.priority():
+        return 1
+    elif op1.priority() < op2.priority():
+        return -1
+    else:
+        return 1 if item1[1] < item2[1] else -1
+
+
+def find_operator_by_priority(stack: List):
+    operators = [
+        (OP_MAPPING[part], i)
+        for i, part in enumerate(stack)
+        if isinstance(part, str) and part in OP_MAPPING
+    ]
+
+    operators = sorted(operators, key=cmp_to_key(__operator_cmp), reverse=True)
+    print(operators)
+    return operators[0]
 
 
 def is_variable(expression: str) -> bool:
