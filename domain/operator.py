@@ -25,12 +25,23 @@ class Operator:
     def _get_arg_value(arg):
         if isinstance(arg, Operator):
             return arg.compute()
-        elif callable(arg):
-            return arg()
+        elif isinstance(arg, Variable):
+            return arg.value()
         elif arg in VALUES:
             return arg
         else:
             raise LogicalException(f"Unknown arg: {arg}")
+
+
+class Variable:
+
+    def __init__(self, arg):
+        self.__value = arg
+
+    def value(self):
+        if callable(self.__value):
+            return self.__value()
+        return self.__value
 
 
 class Conjunction(Operator):

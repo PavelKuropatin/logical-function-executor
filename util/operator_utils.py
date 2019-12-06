@@ -53,7 +53,6 @@ def find_operator_by_priority(stack: List):
     ]
 
     operators = sorted(operators, key=cmp_to_key(__operator_cmp), reverse=True)
-    print(operators)
     return operators[0]
 
 
@@ -94,15 +93,23 @@ def find_brackets_i(expression):
 
 
 def split_by_operator(expression: str) -> Union[List[str], str]:
-    if is_variable(expression) or expression in ALL_OPERATORS:
+    if is_variable(expression):
         return expression
     if not expression:
         return []
 
     stack = __split_by_operators(expression, operators=BI_OPERATORS)
+
+    if len(stack) == 1 and stack[0] in ALL_OPERATORS:
+        return None
+    if len(stack) % 2 == 0:
+        return None
+
     for i, part in enumerate(stack):
         # todo maybe delete the same unary operators, e.g. ~~x => x
         out = __split_by_operators(part, operators=U_OPERATORS)
+        if isinstance(out, list) and out[0] not in U_OPERATORS:
+            return None
         if isinstance(out, str) or len(out) == 2:
             stack[i] = out
         else:
@@ -116,6 +123,7 @@ def __split_by_operators(expression, operators=None):
         return expression
     if not expression or not operators:
         return []
+
     stack = []
     while expression:
         op, op_len, i = find_operator(expression, from_start=True, operators=operators)

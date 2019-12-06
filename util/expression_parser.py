@@ -1,7 +1,7 @@
 import re
 from typing import Union
 
-from domain.operator import Operator
+from domain.operator import Operator, Variable
 from util.constants import BI_OPERATORS, OP_MAPPING
 from util.operator_utils import find_brackets_i, split_by_operator, find_operator, is_variable, is_unary, \
     make_cascade_unary, find_operator_by_priority
@@ -14,7 +14,7 @@ class ParseException(Exception):
 class ExpressionParser:
 
     def __init__(self, ):
-        self.__operator: Operator = None
+        self.__operator = None
         self.__variables: dict = dict()
         self.__stack: list = []
 
@@ -46,7 +46,7 @@ class ExpressionParser:
                 raise ParseException(f"{expr} has unclosed bracket")
             if start_i is None:
                 out = split_by_operator(expr)
-                if len(out) % 2 == 0 and len(out) > 2:
+                if out is None:
                     raise ParseException(f"Invalid expression: {expr}")
                 if stack:
                     stack.append(out)
@@ -116,6 +116,10 @@ class ExpressionParser:
         ]
 
     def __find_variable_names(self, stack):
+        if isinstance(stack, str) and stack not in OP_MAPPING:
+            return {
+                stack: None
+            }
         variables = dict()
         for part in stack:
             if isinstance(part, list):
@@ -127,12 +131,12 @@ class ExpressionParser:
             for variable in variables
         }
 
-    def __build_operator(self, stack: Union[list, str]) -> Union[Operator, callable]:
+    def __build_operator(self, stack: Union[list, str]) -> Union[Operator, Variable]:
         if isinstance(stack, Operator):
             return stack
 
         if isinstance(stack, str):
-            return lambda: self.__variables[stack]
+            return Variable(lambda: self.__variables[stack])
 
         if len(stack) == 2:
             # build unary operator
@@ -154,4 +158,6 @@ class ExpressionParser:
 
     def compute(self, variables):
         self.__variables.update(variables)
+        if isinstance(self.__operator, Variable):
+            return self.__operator.value()
         return self.__operator.compute()
