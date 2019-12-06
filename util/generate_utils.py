@@ -1,5 +1,3 @@
-from itertools import combinations_with_replacement
-
 from domain.value import VALUES
 
 
@@ -12,8 +10,6 @@ def generate_variables(names):
         }
         for data in data_set
     ]
-    for val in combinations_with_replacement(VALUES, len(names)):
-        print(val)
 
 
 def __generate_data(values, size) -> list:

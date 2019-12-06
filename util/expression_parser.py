@@ -46,6 +46,8 @@ class ExpressionParser:
                 raise ParseException(f"{expr} has unclosed bracket")
             if start_i is None:
                 out = split_by_operator(expr)
+                if len(out) % 2 == 0:
+                    raise ParseException(f"Invalid expression: {expr}")
                 if stack:
                     stack.append(out)
                     break
@@ -99,9 +101,6 @@ class ExpressionParser:
                     expr = expr[op_length:]
                     if not expr:
                         raise ParseException(f"{expr} like (...)<operator><end>")
-                # if expr:
-                #     print(expr)
-                #     stack.extend(self.__parse(expr))
 
         return stack
 
