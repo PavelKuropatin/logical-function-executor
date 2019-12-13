@@ -32,6 +32,10 @@ class Operator:
         else:
             raise LogicalException(f"Unknown arg: {arg}")
 
+    @classmethod
+    def name(cls):
+        return cls.__name__
+
 
 class Variable:
 
@@ -69,7 +73,11 @@ class Conjunction(Operator):
 
     @staticmethod
     def lit() -> str:
-        return "&&"
+        return "⋀"
+
+    @classmethod
+    def name(cls):
+        return cls.__name__
 
 
 class Disjunction(Operator):
@@ -92,12 +100,8 @@ class Disjunction(Operator):
         return value
 
     @staticmethod
-    def priority():
-        return 2
-
-    @staticmethod
     def lit() -> str:
-        return "||"
+        return "⋁"
 
 
 class Xor(Operator):
@@ -120,12 +124,8 @@ class Xor(Operator):
         return value
 
     @staticmethod
-    def priority():
-        return 2
-
-    @staticmethod
     def lit() -> str:
-        return "~"
+        return "⊕"
 
 
 class Implication(Operator):
@@ -139,23 +139,11 @@ class Implication(Operator):
 
         arg1 = self._get_arg_value(self._args[0])
         arg2 = self._get_arg_value(self._args[1])
-        if arg1 == ZERO:
-            value = ONE
-        elif (arg1, arg2) == (ONE, ONE):
-            value = ONE
-        elif (arg1, arg2) == (ONE, ZERO):
-            value = ZERO
-        else:
-            value = DC
-        return value
-
-    @staticmethod
-    def priority():
-        return 3
+        return Disjunction(Not(arg1), arg2).compute()
 
     @staticmethod
     def lit() -> str:
-        return "-->"
+        return "→"
 
 
 class Equivalence(Operator):
@@ -178,12 +166,8 @@ class Equivalence(Operator):
         return value
 
     @staticmethod
-    def priority():
-        return 3
-
-    @staticmethod
     def lit() -> str:
-        return "<->"
+        return "≍"
 
 
 class Not(Operator):
@@ -192,8 +176,8 @@ class Not(Operator):
         super().__init__(*args)
 
     def compute(self):
-        # if len(self._args) != ONE:
-        #     raise LogicalException("args count is not 1")
+        if len(self._args) != 1:
+            raise LogicalException("args count is not 1")
 
         arg = self._get_arg_value(self._args[0])
         if arg == ONE:
@@ -205,9 +189,41 @@ class Not(Operator):
         return value
 
     @staticmethod
-    def priority():
-        return 0
+    def lit() -> str:
+        return "¬"
+
+
+class PeirceArrow(Operator):
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def compute(self):
+        if len(self._args) != 2:
+            raise LogicalException("args count is not 2")
+
+        arg1 = self._get_arg_value(self._args[0])
+        arg2 = self._get_arg_value(self._args[1])
+        return Not(Disjunction(arg1, arg2)).compute()
 
     @staticmethod
     def lit() -> str:
-        return "!"
+        return "↓"
+
+
+class SchaefferBar(Operator):
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def compute(self):
+        if len(self._args) != 2:
+            raise LogicalException("args count is not 2")
+
+        arg1 = self._get_arg_value(self._args[0])
+        arg2 = self._get_arg_value(self._args[1])
+        return Not(Conjunction(arg1, arg2)).compute()
+
+    @staticmethod
+    def lit() -> str:
+        return "/"

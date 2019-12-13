@@ -35,14 +35,7 @@ def find_operator(expression, from_start=True, operators=ALL_OPERATORS):
 
 
 def __operator_cmp(item1, item2) -> int:
-    op1 = item1[0]
-    op2 = item2[0]
-    if op1.priority() > op2.priority():
-        return 1
-    elif op1.priority() < op2.priority():
-        return -1
-    else:
-        return 1 if item1[1] < item2[1] else -1
+    return 1 if item1[1] < item2[1] else -1
 
 
 def find_operator_by_priority(stack: List):

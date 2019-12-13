@@ -19,4 +19,5 @@ class __Value:
 ONE = __Value(1)
 ZERO = __Value(0)
 DC = __Value(None)
-VALUES = (ONE, ZERO, DC)
+# VALUES = (ONE, ZERO, DC)
+VALUES = (ZERO, ONE, DC)

@@ -29,6 +29,7 @@ class ExpressionParser:
     def parse(self, expression) -> None:
         self.__variables.clear()
         expression = re.sub(r"\s*", "", expression)
+        print(expression)
         stack = self.__parse(expression)
         stack = self.__refactor_stack(stack)
 
