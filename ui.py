@@ -5,8 +5,8 @@ from PyQt5 import uic, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget
 
+from domain.expression_parser import ExpressionParser
 from util.constants import OP_MAPPING
-from util.expression_parser import ExpressionParser
 from util.generate_utils import generate_variables
 
 
@@ -20,7 +20,7 @@ class LogicalFunctionParser(QMainWindow):
         self.show()
 
     def __init_data(self):
-        self.__default_expression = "x1  ⋀ x2  → ( ¬ x3 / x4 )  ≍ x5"
+        self.__default_expression = "x1  ⋀ x2  → ( ¬ x3 / x4 )"
         self.__parser = ExpressionParser()
 
     def __init_ui(self):

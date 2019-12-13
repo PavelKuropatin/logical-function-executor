@@ -1,6 +1,6 @@
 import sys
 
-from util.expression_parser import ExpressionParser
+from domain.expression_parser import ExpressionParser
 from util.generate_utils import generate_variables
 
 if __name__ == '__main__':
